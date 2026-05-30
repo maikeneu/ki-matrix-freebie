@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Die KI-Matrix für Selbstständige · @maikeneuheisel</title>
+  <meta name="description" content="Vier Fragen, eine klare Antwort. Finde heraus, in welchen Quadranten deiner KI-Matrix deine Aufgabe gehört." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --warm-white:#FAF7F2;
+      --sand-beige:#D8C6BB;
+      --warm-grey:#A6A0A0;
+      --soft-black:#111111;
+      --terracotta:#C17654;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      background:linear-gradient(135deg,var(--warm-white) 0%,#F1E8DE 100%);
+      color:var(--soft-black);
+      line-height:1.55;
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+    }
+    .container{max-width:780px;margin:0 auto;padding:48px 24px 96px}
+    header{margin-bottom:48px}
+    .eyebrow{
+      font-size:13px;font-weight:500;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--terracotta);margin-bottom:12px
+    }
+    h1{
+      font-family:'Syne',sans-serif;font-weight:800;
+      font-size:clamp(36px,6vw,56px);line-height:.95;
+      letter-spacing:-.02em;text-transform:uppercase;
+      margin-bottom:20px;
+    }
+    h1 .acc{color:var(--terracotta)}
+    .sub{color:var(--warm-grey);font-size:17px;max-width:560px}
+
+    .matrix-card{
+      background:rgba(216,198,187,.18);
+      border:1px solid rgba(166,160,160,.25);
+      border-radius:20px;
+      padding:24px;
+      box-shadow:0 12px 32px rgba(166,160,160,.12);
+      margin:40px 0;
+      backdrop-filter:blur(8px);
+    }
+    .matrix-card img{width:100%;height:auto;display:block;border-radius:12px}
+    .matrix-card .caption{
+      margin-top:14px;color:var(--warm-grey);
+      font-size:14px;text-align:center;font-style:italic
+    }
+    .matrix-fallback{
+      display:flex;align-items:center;justify-content:center;
+      aspect-ratio:4/5;background:var(--warm-white);
+      border:1px dashed var(--warm-grey);border-radius:12px;
+      color:var(--warm-grey);font-style:italic;padding:24px;text-align:center
+    }
+
+    h2{
+      font-family:'Syne',sans-serif;font-weight:700;
+      font-size:clamp(28px,4vw,40px);line-height:1.05;
+      letter-spacing:-.01em;text-transform:uppercase;
+      margin:64px 0 16px;
+    }
+    p.lead{font-size:17px;margin-bottom:24px;max-width:620px}
+
+    .quiz{
+      background:var(--warm-white);
+      border:1px solid rgba(166,160,160,.2);
+      border-radius:24px;
+      padding:36px 28px;
+      box-shadow:0 16px 40px rgba(166,160,160,.15);
+      margin-top:24px;
+    }
+    .step{display:none}
+    .step.active{display:block;animation:fade .4s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .step .num{
+      font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+      color:var(--terracotta);font-weight:500;margin-bottom:10px
+    }
+    .step h3{
+      font-family:'Syne',sans-serif;font-weight:700;
+      font-size:clamp(22px,3vw,30px);line-height:1.15;
+      text-transform:uppercase;letter-spacing:-.01em;
+      margin-bottom:18px
+    }
+    .step p.hint{color:var(--warm-grey);font-size:15px;margin-bottom:24px;font-style:italic}
+
+    .options{display:flex;flex-direction:column;gap:12px}
+    .opt{
+      background:var(--warm-white);
+      border:1px solid var(--sand-beige);
+      border-radius:14px;
+      padding:18px 20px;
+      font-family:inherit;font-size:16px;
+      text-align:left;cursor:pointer;
+      color:var(--soft-black);
+      transition:all .2s ease;
+      display:flex;align-items:center;gap:14px;
+    }
+    .opt:hover{
+      border-color:var(--terracotta);
+      background:rgba(193,118,84,.05);
+      transform:translateX(2px)
+    }
+    .opt .badge{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:28px;height:28px;border-radius:50%;
+      background:var(--sand-beige);color:var(--soft-black);
+      font-size:13px;font-weight:700;flex-shrink:0
+    }
+    .opt:hover .badge{background:var(--terracotta);color:var(--warm-white)}
+
+    .back{
+      margin-top:20px;background:none;border:none;cursor:pointer;
+      color:var(--warm-grey);font-family:inherit;font-size:14px;
+      display:inline-flex;align-items:center;gap:6px
+    }
+    .back:hover{color:var(--soft-black)}
+
+    .result{padding:32px 4px}
+    .result .label{
+      display:inline-block;
+      background:var(--sand-beige);color:var(--soft-black);
+      padding:6px 14px;border-radius:999px;
+      font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+      font-weight:500;margin-bottom:18px
+    }
+    .result.terracotta-accent .label{background:var(--terracotta);color:var(--warm-white)}
+    .result h3{
+      font-family:'Syne',sans-serif;font-weight:800;
+      font-size:clamp(32px,5vw,48px);line-height:.95;
+      letter-spacing:-.02em;text-transform:uppercase;
+      margin-bottom:14px
+    }
+    .result .lead-result{font-size:18px;margin-bottom:22px;max-width:560px}
+    .result .examples{
+      background:rgba(216,198,187,.25);
+      border-radius:14px;padding:18px 22px;
+      margin-bottom:24px
+    }
+    .result .examples b{
+      display:block;font-size:12px;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--warm-grey);
+      margin-bottom:10px;font-weight:500
+    }
+    .result .examples ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+    .result .examples li{
+      background:var(--warm-white);
+      border:1px solid var(--sand-beige);
+      padding:8px 14px;border-radius:999px;
+      font-size:14px
+    }
+    .result .restart{
+      background:var(--soft-black);color:var(--warm-white);
+      border:none;padding:14px 24px;border-radius:999px;
+      font-family:inherit;font-weight:500;cursor:pointer;
+      font-size:15px;letter-spacing:.02em
+    }
+    .result .restart:hover{background:var(--terracotta)}
+
+    .safety{
+      background:var(--soft-black);color:var(--warm-white);
+      border-radius:24px;padding:32px 28px;text-align:center
+    }
+    .safety h3{
+      font-family:'Syne',sans-serif;text-transform:uppercase;
+      font-size:24px;margin-bottom:12px;letter-spacing:-.01em
+    }
+    .safety p{color:#cdc5be;max-width:520px;margin:0 auto 18px}
+    .safety .restart{
+      background:var(--terracotta);color:var(--warm-white);
+      border:none;padding:12px 22px;border-radius:999px;
+      font-family:inherit;font-weight:500;cursor:pointer
+    }
+
+    footer{
+      margin-top:80px;padding-top:32px;
+      border-top:1px solid var(--sand-beige);
+      color:var(--warm-grey);font-size:14px;line-height:1.7
+    }
+    footer a{color:var(--soft-black);text-decoration:none;border-bottom:1px solid var(--terracotta)}
+    footer a:hover{color:var(--terracotta)}
+    .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:18px}
+
+    @media (max-width:520px){
+      .container{padding:32px 18px 64px}
+      .quiz{padding:28px 20px;border-radius:20px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="eyebrow">Ein Freebie von @maikeneuheisel</div>
+      <h1>Die KI-Matrix<br/>für <span class="acc">Selbstständige</span>.</h1>
+      <p class="sub">Vier Fragen. Eine klare Antwort. Du erfährst, in welchen der vier Quadranten deine konkrete Aufgabe gehört und was du damit machst.</p>
+    </header>
+
+    <section class="matrix-card" aria-label="Die KI-Matrix">
+      <img src="matrix.png" alt="Die KI-Matrix für Selbstständige mit vier Quadranten: Nur du, Co-Pilot, Delegieren, Automatisieren" onerror="this.style.display='none';document.getElementById('matrix-fallback').style.display='flex'" />
+      <div id="matrix-fallback" class="matrix-fallback" style="display:none">Die Matrix-Grafik wird hier angezeigt, sobald sie hochgeladen ist.</div>
+      <div class="caption">Speicher dir diesen Slide. Du brauchst ihn wieder.</div>
+    </section>
+
+    <h2>Mach den 4-Fragen-Test</h2>
+    <p class="lead">Nimm dir eine konkrete Aufgabe aus deinem Business-Alltag, bei der du gerade unsicher bist, ob du sie an KI abgeben sollst.</p>
+
+    <div class="quiz" id="quiz">
+
+      <!-- Step 1 -->
+      <div class="step active" data-step="1">
+        <div class="num">Frage 1 von 4</div>
+        <h3>Geht es um Recht, Medizin oder Finanzen?</h3>
+        <p class="hint">Inhalte, bei denen ein Fehler echten Schaden anrichten könnte.</p>
+        <div class="options">
+          <button class="opt" data-answer="safety:yes"><span class="badge">A</span>Ja, sensibles Thema</button>
+          <button class="opt" data-answer="safety:no"><span class="badge">B</span>Nein, ganz normaler Business-Alltag</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" data-step="2">
+        <div class="num">Frage 2 von 4</div>
+        <h3>Würde man sofort merken, dass es nicht von dir kommt?</h3>
+        <p class="hint">Wenn jemand anderes oder eine Maschine die Aufgabe erledigt.</p>
+        <div class="options">
+          <button class="opt" data-answer="voice:A"><span class="badge">A</span>Ja, das fiele sofort auf</button>
+          <button class="opt" data-answer="voice:B"><span class="badge">B</span>Nein, das würde niemandem auffallen</button>
+        </div>
+        <button class="back" data-back="1">← Eine Frage zurück</button>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" data-step="3">
+        <div class="num">Frage 3 von 4</div>
+        <h3>Lässt sich die Aufgabe in klare Schritte zerlegen?</h3>
+        <p class="hint">So, dass du sie in fünf Sätzen erklären könntest.</p>
+        <div class="options">
+          <button class="opt" data-answer="struct:1"><span class="badge">1</span>Ja, klar standardisierbar</button>
+          <button class="opt" data-answer="struct:2"><span class="badge">2</span>Nein, jeder Fall ist anders</button>
+        </div>
+        <button class="back" data-back="2">← Eine Frage zurück</button>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" data-step="4">
+        <div class="num">Frage 4 von 4 · optional</div>
+        <h3>Gibt dir diese Aufgabe Energie oder zieht sie welche?</h3>
+        <p class="hint">Tie-Break à la Dan Martell. Hilft dir bei der Frage „behalten oder abgeben".</p>
+        <div class="options">
+          <button class="opt" data-answer="energy:keep"><span class="badge">E</span>Sie gibt mir Energie oder ist neutral</button>
+          <button class="opt" data-answer="energy:drain"><span class="badge">E</span>Sie zieht mir Energie</button>
+        </div>
+        <button class="back" data-back="3">← Eine Frage zurück</button>
+      </div>
+
+      <!-- Result: Safety stop -->
+      <div class="step safety" data-step="safety">
+        <h3>Stopp. Fachmensch zuerst.</h3>
+        <p>Bei rechtlichen, medizinischen oder finanziellen Inhalten arbeitest du immer mit einem Fachmenschen. Diese Matrix gilt hier nicht.</p>
+        <button class="restart">Test neu starten</button>
+      </div>
+
+      <!-- Result: Co-Pilot -->
+      <div class="step result terracotta-accent" data-step="result-copilot">
+        <div class="label">A1 · Standardisierbar mit Stimme</div>
+        <h3>Co-Pilot.</h3>
+        <p class="lead-result">KI baut das Gerüst, du bringst das Lebendige hinein. Die Regel lautet: KI liefert siebzig Prozent, du veredelst die letzten dreißig.</p>
+        <div class="examples">
+          <b>Typische Aufgaben</b>
+          <ul>
+            <li>Sales-Page-Entwurf</li>
+            <li>Newsletter-Gerüst</li>
+            <li>Webinar-Struktur</li>
+            <li>Angebots-Vorlage</li>
+            <li>Kundenmail-Entwurf</li>
+          </ul>
+        </div>
+        <button class="restart">Test neu starten</button>
+      </div>
+
+      <!-- Result: Nur du -->
+      <div class="step result terracotta-accent" data-step="result-nurdu">
+        <div class="label">A2 · Einzigartig mit Stimme</div>
+        <h3>Nur du.</h3>
+        <p class="lead-result">Hier hat KI nichts zu suchen. Diese Aufgaben machen dein Business zu deinem. Bleib selbst drin, auch wenn es länger dauert.</p>
+        <div class="examples">
+          <b>Typische Aufgaben</b>
+          <ul>
+            <li>Positionierung</li>
+            <li>Persönliche Geschichten</li>
+            <li>Erstgespräch</li>
+            <li>Preisentscheidung</li>
+            <li>Werte und Ausrichtung</li>
+          </ul>
+        </div>
+        <button class="restart">Test neu starten</button>
+      </div>
+
+      <!-- Result: Automatisieren -->
+      <div class="step result" data-step="result-auto">
+        <div class="label">B1 · Standardisierbar ohne Stimme</div>
+        <h3>Automatisieren.</h3>
+        <p class="lead-result">Hier darf KI machen, was sie will. Komplett übergeben. Niemand merkt, dass du nicht persönlich am Werk warst, weil es nicht von deiner Stimme lebt.</p>
+        <div class="examples">
+          <b>Typische Aufgaben</b>
+          <ul>
+            <li>Transkripte</li>
+            <li>Untertitel</li>
+            <li>Standardtexte</li>
+            <li>Termin-Bestätigungen</li>
+            <li>Übersetzungen</li>
+          </ul>
+        </div>
+        <button class="restart">Test neu starten</button>
+      </div>
+
+      <!-- Result: Delegieren -->
+      <div class="step result" data-step="result-deleg">
+        <div class="label">B2 · Einzigartig ohne Stimme</div>
+        <h3>Delegieren.</h3>
+        <p class="lead-result">Hier brauchst du einen Menschen, aber nicht dich selbst. Eine erfahrene VA oder Freelancerin ist hier besser, schneller und zuverlässiger als jede KI.</p>
+        <div class="examples">
+          <b>Typische Aufgaben</b>
+          <ul>
+            <li>Buchhaltung</li>
+            <li>Steuerkram</li>
+            <li>Tech-Setup</li>
+            <li>Sensible Anfragen</li>
+            <li>Vertrags-Themen</li>
+          </ul>
+        </div>
+        <button class="restart">Test neu starten</button>
+      </div>
+
+    </div>
+
+    <footer>
+      <div>Wenn du dir bei einer Aufgabe nicht sicher bist, geh diesen Test einmal durch, bevor du den nächsten Prompt schreibst. Drei Minuten Klarheit ersparen dir manchmal drei Wochen Content, der nicht nach dir klingt.</div>
+      <div class="footer-row">
+        <span>© 2026 Maike Neuheisel</span>
+        <span><a href="https://instagram.com/maikeneuheisel" target="_blank" rel="noopener">@maikeneuheisel auf Instagram</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const answers = {};
+    const steps = document.querySelectorAll('.step');
+
+    function show(name){
+      steps.forEach(s => s.classList.remove('active'));
+      const target = document.querySelector('[data-step="'+name+'"]');
+      if(target) target.classList.add('active');
+      window.scrollTo({top: document.getElementById('quiz').offsetTop - 24, behavior:'smooth'});
+    }
+
+    function computeResult(){
+      // safety already handled
+      const v = answers.voice;     // A or B
+      const s = answers.struct;    // 1 or 2
+      if(v === 'A' && s === '1') return 'result-copilot';
+      if(v === 'A' && s === '2') return 'result-nurdu';
+      if(v === 'B' && s === '1') return 'result-auto';
+      if(v === 'B' && s === '2') return 'result-deleg';
+    }
+
+    document.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [key, val] = btn.dataset.answer.split(':');
+        answers[key] = val;
+        if(key === 'safety') {
+          if(val === 'yes') return show('safety');
+          return show(2);
+        }
+        if(key === 'voice')  return show(3);
+        if(key === 'struct') return show(4);
+        if(key === 'energy') return show(computeResult());
+      });
+    });
+
+    document.querySelectorAll('.back').forEach(b => {
+      b.addEventListener('click', () => show(parseInt(b.dataset.back,10)));
+    });
+
+    document.querySelectorAll('.restart').forEach(b => {
+      b.addEventListener('click', () => {
+        for(const k in answers) delete answers[k];
+        show(1);
+      });
+    });
+  </script>
+</body>
+</html>
